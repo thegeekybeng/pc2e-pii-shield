@@ -10,7 +10,7 @@ This repository serves as a fully functional proof-of-concept demonstrating how 
 
 The system works as a client-side middleware/interceptor layer that wraps LLM calls, executing the following pipeline:
 
-```
+``` text
 [Teacher Input Workspace] 
          │
          ▼ (Submit)
@@ -63,11 +63,13 @@ The system works as a client-side middleware/interceptor layer that wraps LLM ca
 To run the interactive UI dashboard:
 
 1. Serve the files locally. Because it uses ES Modules (`import/export`), you must run a simple HTTP server rather than opening `index.html` directly in the browser. You can use any static server, for example:
+
    ```bash
    npx serve .
    # or
    python3 -m http.server
    ```
+
 2. Open the printed localhost URL in your browser.
 3. Click **"Load Sample with PII"** to populate the workspace.
 4. Click **"Run Local Predict"** or **"Submit to Cloud AI"** to see the PII Shield interceptor modal in action!
@@ -79,9 +81,11 @@ To run the interactive UI dashboard:
 To deploy this interceptor directly to **EtonHouse's Lumina AI** (or any lesson planner/LLM app), choose one of the packaging formats below:
 
 ### 1. Browser Extension (Zero-Code Deployment)
+
 Perfect if you run Lumina AI as a third-party service and cannot change its underlying code directly.
-*   **How it Works:** The extension injects `inject.js` directly into Lumina's frontend execution context. It intercepts `window.fetch` requests destined for AI endpoints, executes `pseudonymize` in-browser, forwards the sanitized prompt, and `depseudonymizes` the response before the page displays it.
-*   **To Install & Test:**
+
+- **How it Works:** The extension injects `inject.js` directly into Lumina's frontend execution context. It intercepts `window.fetch` requests destined for AI endpoints, executes `pseudonymize` in-browser, forwards the sanitized prompt, and `depseudonymizes` the response before the page displays it.
+- **To Install & Test:**
     1. Open Google Chrome and go to `chrome://extensions/`.
     2. Enable **Developer mode** (top-right toggle).
     3. Click **"Load unpacked"** (top-left button).
@@ -89,12 +93,17 @@ Perfect if you run Lumina AI as a third-party service and cannot change its unde
     5. Click the extension icon in your toolbar, upload `classRoster.json`, and run your lesson planner. All PII is masked transparently!
 
 ### 2. npm Package (Direct Codebase Integration)
+
 If EtonHouse owns the Lumina AI codebase and wants to integrate this directly as a secure software dependency:
-*   **To Install:**
+
+- **To Install:**
+
     ```bash
     npm install @thegeekybeng/pii-shield
     ```
-*   **To Integrate:**
+
+- **To Integrate:**
+
     ```javascript
     import { predictPII, pseudonymize, depseudonymize } from '@thegeekybeng/pii-shield';
 
@@ -120,4 +129,5 @@ To verify the PII regex, roster matchers, and bi-directional pseudonymization lo
 ```bash
 node verify_pii.js
 ```
+
 All assertions should pass successfully.
