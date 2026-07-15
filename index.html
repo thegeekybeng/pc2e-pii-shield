@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PII Shield — A PC2E-Aligned Privacy Layer</title>
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* CSS Reset & Variables */
+    :root {
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Color Palette (Deep Ocean & Electric Slate) */
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --card-border: rgba(255, 255, 255, 0.08);
+      
+      --color-primary: #6366f1; /* Indigo */
+      --color-primary-hover: #4f46e5;
+      --color-secondary: #06b6d4; /* Cyan */
+      --color-success: #10b981; /* Emerald */
+      --color-warning: #f59e0b; /* Amber */
+      --color-danger: #ef4444; /* Rose */
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dark: #475569;
+      
+      --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 1px 1px 0 rgba(255, 255, 255, 0.05) inset;
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: var(--bg-gradient);
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    /* Header Styles */
+    header {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .header-logo-icon {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .header-logo-text h1 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header-logo-text p {
+      font-size: 0.75rem;
+      color: var(--color-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .shield-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-success);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+    
+    .shield-pulse {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: var(--color-success);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    
+    /* Layout Main Grid */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Card Container Styles */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-premium);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: var(--transition-smooth);
+    }
+    
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+    
+    .card-title span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .card-title-icon {
+      color: var(--color-primary);
+    }
+    
+    /* Left Panel: Input Area & Roster */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    textarea.teacher-prompt {
+      width: 100%;
+      min-height: 180px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      resize: vertical;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+    
+    textarea.teacher-prompt:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    button.btn {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition-smooth);
+    }
+    
+    button.btn-primary {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    button.btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+      transform: translateY(-1px);
+    }
+    
+    button.btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+    
+    button.btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Roster Panel */
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    
+    .roster-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      text-align: center;
+      transition: var(--transition-smooth);
+      cursor: default;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    
+    .roster-item.matched {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fda4af;
+      font-weight: 500;
+    }
+    
+    .roster-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .roster-input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    
+    .roster-input:focus {
+      border-color: var(--color-secondary);
+    }
+    
+    /* Right Panel: Sandbox & Execution View */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    /* Interactive Intercept Modal (PII Warning UI) */
+    .intercept-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    
+    .intercept-modal {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+      max-width: 750px;
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    @keyframes modalSlideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .modal-header {
+      background: linear-gradient(to right, #be123c, #881337);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .modal-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .warning-description {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid var(--color-danger);
+      padding: 0.75rem 1rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .warning-description strong {
+      color: #fda4af;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .pii-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .pii-item {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 0.85rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    
+    .pii-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+    
+    .pii-badge-roster { background: rgba(239, 68, 68, 0.2); color: #fda4af; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .pii-badge-nlp { background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pii-badge-email { background: rgba(6, 182, 212, 0.2); color: #a5f3fc; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .pii-badge-phone { background: rgba(16, 185, 129, 0.2); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pii-badge-id { background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.3); }
+    
+    .pii-details {
+      flex: 1;
+    }
+    
+    .pii-details-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+    
+    .pii-term {
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    
+    .pii-explain {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+    
+    .action-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+    
+    .action-select {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 0.375rem;
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      outline: none;
+    }
+    
+    .action-select:focus {
+      border-color: var(--color-primary);
+    }
+    
+    .modal-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    @media (max-width: 600px) {
+      .modal-comparison {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .comparison-box {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .comparison-box h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.25rem;
+    }
+    
+    .comparison-content {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 120px;
+      overflow-y: auto;
+      color: #cbd5e1;
+    }
+    
+    .comparison-content mark {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fda4af;
+      border-bottom: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 0.25rem;
+      padding: 0 0.15rem;
+    }
+    
+    .comparison-content mark.pseudonymized {
+      background: rgba(6, 182, 212, 0.2);
+      color: #67e8f9;
+      border-bottom: 1px solid rgba(6, 182, 212, 0.5);
+    }
+    
+    .modal-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    /* PII Shield Dashboard */
+    .pc2e-dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    @media (max-width: 500px) {
+      .pc2e-dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .metric-card {
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .metric-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+    }
+    
+    .metric-value.secure {
+      color: var(--color-success);
+    }
+    
+    .metric-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Flow Walkthrough */
+    .flow-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 0.75rem;
+    }
+    
+    .flow-number {
+      background: var(--color-primary);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+    
+    .flow-details {
+      flex: 1;
+    }
+    
+    .flow-details h5 {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #ffffff;
+    }
+    
+    .flow-details p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Code Viewer Box */
+    .code-box {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      overflow-x: auto;
+      max-height: 250px;
+      color: #38bdf8;
+      position: relative;
+    }
+    
+    .code-box::before {
+      content: 'CLOUD INGESTION PAYLOAD';
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.65rem;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    
+    /* Output result box */
+    .output-box {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      background: rgba(16, 185, 129, 0.03);
+      min-height: 100px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+    
+    .output-box.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-style: italic;
+      border-color: rgba(255, 255, 255, 0.08);
+      background: transparent;
+    }
+    
+    .output-box mark.restored {
+      background: rgba(16, 185, 129, 0.2);
+      color: #a7f3d0;
+      border-bottom: 2px solid var(--color-success);
+      border-radius: 0.25rem;
+      padding: 0 0.15rem;
+      font-weight: 500;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-logo">
+      <div class="header-logo-icon">P</div>
+      <div class="header-logo-text">
+        <h1>PII Shield</h1>
+        <p>A PC2E-Aligned Privacy Layer</p>
+      </div>
+    </div>
+    
+    <div class="shield-badge">
+      <div class="shield-pulse"></div>
+      <span>Edge-Assisted PII Shield Active</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Column: Input Sandbox -->
+    <div class="left-panel">
+      <!-- Course Planner Input -->
+      <div class="card">
+        <div class="card-title">
+          <span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            Teacher Input Workspace
+          </span>
+          <button id="btn-load-sample" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Load Sample with PII</button>
+        </div>
+        
+        <p class="metric-desc" style="margin-top: -0.5rem;">
+          Type or draft your lesson guidelines below. Names of students or private data will be detected on-the-fly and prevented from leaving the browser.
+        </p>
+        
+        <div class="input-wrapper">
+          <textarea id="teacher-prompt-input" class="teacher-prompt" placeholder="Draft your course planning prompt here... (e.g. 'Draft a lesson plan for math class. Make sure Tommy Henderson gets additional assistance with algebra. Also, send results to parents at sarah@school.edu')"></textarea>
+        </div>
+        
+        <div class="button-group">
+          <button id="btn-analyze" class="btn btn-secondary">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            Run Local Predict
+          </button>
+          <button id="btn-submit" class="btn btn-primary">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+            Submit to Cloud AI
+          </button>
+        </div>
+      </div>
+      
+      <!-- Student Class Roster -->
+      <div class="card">
+        <div class="card-title">
+          <span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m16-10a4 4 0 11-8 0 4 4 0 018 0zm6 10v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path></svg>
+            Active Student Class Roster
+          </span>
+          <span id="roster-count" class="pii-badge pii-badge-id">0 Students</span>
+        </div>
+        <p class="metric-desc" style="margin-top: -0.5rem;">
+          These student records are saved <strong>exclusively in local browser memory</strong> for instant match forecasting. They are never sent to the server.
+        </p>
+        
+        <div id="roster-container" class="roster-grid">
+          <!-- Populated by JS -->
+        </div>
+        
+        <div class="roster-input-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; gap: 0.5rem; width: 100%;">
+            <input type="text" id="new-roster-name" class="roster-input" placeholder="Add student (e.g. Liam Vance)" style="flex: 1;" />
+            <button id="btn-add-roster" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
+          </div>
+          
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.75rem;">
+            <label class="btn btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.75rem; cursor: pointer; margin: 0; display: inline-flex; align-items: center; gap: 0.25rem;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              Upload Roster (TXT/CSV/JSON)
+              <input type="file" id="roster-file-input" accept=".txt,.csv,.json" style="display: none;" />
+            </label>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">One name per line or CSV</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Column: Sandbox Logs & Metrics -->
+    <div class="right-panel">
+      <!-- PII Shield Stats -->
+      <div class="card">
+        <div class="card-title">
+          <span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+            PII Shield Performance Metrics
+          </span>
+        </div>
+        
+        <div class="pc2e-dashboard">
+          <div class="metric-card">
+            <span class="metric-title">Privacy Risk</span>
+            <span id="metric-privacy-leak" class="metric-value secure">0.00%</span>
+            <span class="metric-desc">Unsanitized PII leaked to Cloud</span>
+          </div>
+          
+          <div class="metric-card">
+            <span class="metric-title">Predict Confidence</span>
+            <span id="metric-detect-rate" class="metric-value">100%</span>
+            <span class="metric-desc">PII identified locally</span>
+          </div>
+          
+          <div class="metric-card">
+            <span class="metric-title">Security State</span>
+            <span class="metric-value secure">Guarded</span>
+            <span class="metric-desc">Bi-directional token mapping</span>
+          </div>
+          
+          <div class="metric-card">
+            <span class="metric-title">Technical Debt</span>
+            <span class="metric-value" style="color: var(--color-secondary);">Zero</span>
+            <span class="metric-desc">Modular Middleware Interceptor</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Interceptor Sandbox -->
+      <div class="card">
+        <div class="card-title">
+          <span>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Client Interceptor: Sandbox Outputs
+          </span>
+        </div>
+        
+        <div class="flow-step">
+          <div class="flow-number">1</div>
+          <div class="flow-details">
+            <h5>Predict & Pseudonymize Pipeline</h5>
+            <p>This is the actual payload sent out of the school gateway to the cloud LLM.</p>
+          </div>
+        </div>
+        
+        <pre id="cloud-payload-view" class="code-box">Prompt sanitized. Waiting for request...</pre>
+        
+        <div class="flow-step">
+          <div class="flow-number">2</div>
+          <div class="flow-details">
+            <h5>De-pseudonymize & Render Pipeline</h5>
+            <p>Cloud LLM output is processed client-side. Original student names are re-stitched back into the text.</p>
+          </div>
+        </div>
+        
+        <div id="final-rendered-output" class="output-box empty">
+          Submit a lesson planning prompt to execute the full PII Shield pipeline and view final results.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive Intercept Alert Modal -->
+  <div id="intercept-overlay-modal" class="intercept-overlay">
+    <div class="intercept-modal">
+      <div class="modal-header">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: white;"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <h3>Student PII Upload Intercepted!</h3>
+      </div>
+      
+      <div class="modal-body">
+        <div class="warning-description">
+          <strong>PII Shield Privacy Guardrail Triggered</strong>
+          Your course planning content contains details that match known students or standard PII formats. Uploading these raw names violates FERPA & student privacy guidelines.
+        </div>
+        
+        <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff;">Detected PII Explanations:</div>
+        
+        <div id="pii-items-list" class="pii-list">
+          <!-- Filled by JS -->
+        </div>
+        
+        <div class="modal-comparison">
+          <div class="comparison-box">
+            <h4>Original Text (Stay Local)</h4>
+            <div id="comp-original" class="comparison-content"></div>
+          </div>
+          
+          <div class="comparison-box">
+            <h4>Sanitized Text (Sent to Cloud)</h4>
+            <div id="comp-sanitized" class="comparison-content"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="btn-modal-raw" class="btn btn-secondary" style="border-color: var(--color-danger); color: #fda4af; background: rgba(239, 68, 68, 0.05);">
+          Send Raw (Override)
+        </button>
+        <button id="btn-modal-cancel" class="btn btn-secondary">
+          Cancel & Edit
+        </button>
+        <button id="btn-modal-sanitize" class="btn btn-primary">
+          Sanitize & Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { predictPII, pseudonymize, depseudonymize } from './piiFilter.js';
+
+    // Roster state
+    let classRoster = [];
+    
+    // UI elements
+    const textInput = document.getElementById('teacher-prompt-input');
+    const rosterContainer = document.getElementById('roster-container');
+    const rosterCount = document.getElementById('roster-count');
+    const newRosterName = document.getElementById('new-roster-name');
+    
+    const btnLoadSample = document.getElementById('btn-load-sample');
+    const btnAnalyze = document.getElementById('btn-analyze');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnAddRoster = document.getElementById('btn-add-roster');
+    const rosterFileInput = document.getElementById('roster-file-input');
+    
+    // Modal UI elements
+    const interceptOverlay = document.getElementById('intercept-overlay-modal');
+    const piiItemsList = document.getElementById('pii-items-list');
+    const compOriginal = document.getElementById('comp-original');
+    const compSanitized = document.getElementById('comp-sanitized');
+    
+    const btnModalRaw = document.getElementById('btn-modal-raw');
+    const btnModalCancel = document.getElementById('btn-modal-cancel');
+    const btnModalSanitize = document.getElementById('btn-modal-sanitize');
+    
+    // Results UI elements
+    const cloudPayloadView = document.getElementById('cloud-payload-view');
+    const finalRenderedOutput = document.getElementById('final-rendered-output');
+    
+    const metricPrivacyLeak = document.getElementById('metric-privacy-leak');
+    const metricDetectRate = document.getElementById('metric-detect-rate');
+
+    // Load initial roster
+    async function init() {
+      try {
+        const response = await fetch('./classRoster.json');
+        classRoster = await response.json();
+      } catch (err) {
+        console.warn('Could not load roster file, using fallback array.', err);
+        classRoster = [
+          "Tommy Henderson", "Sarah Jenkins", "Alex Rivera", "Emma Watson",
+          "Liam Vance", "Olivia Carter", "Noah Brooks"
+        ];
+      }
+      renderRoster();
+      
+      // Load standard sample prompt
+      loadSamplePrompt();
+    }
+
+    function renderRoster(matches = []) {
+      rosterContainer.innerHTML = '';
+      rosterCount.innerText = `${classRoster.length} Students`;
+      
+      classRoster.forEach(student => {
+        const div = document.createElement('div');
+        div.className = 'roster-item';
+        div.innerText = student;
+        
+        // Highlight if matches current predictions
+        const lowercaseStudent = student.toLowerCase();
+        const lowercaseFirst = student.split(' ')[0].toLowerCase();
+        
+        const isMatched = matches.some(m => {
+          const val = m.term.toLowerCase();
+          return val === lowercaseStudent || val === lowercaseFirst;
+        });
+        
+        if (isMatched) {
+          div.className += ' matched';
+        }
+        
+        rosterContainer.appendChild(div);
+      });
+    }
+
+    function loadSamplePrompt() {
+      textInput.value = `Create a differentiated lesson plan for my algebra class.
+Tommy Henderson needs extra guidance with quadratic equations because he struggled in the quiz.
+Sarah Jenkins is advanced and can be given the extension worksheet.
+Also, when complete, draft a notification email to be sent to parent guardian contact at liam.vance@school.edu or phone 206-555-0192 for validation.
+Student ID: STU-88291 will be monitored.`;
+      
+      // Run quick scan to highlight matching roster items initially
+      runLocalPrediction();
+    }
+
+    function runLocalPrediction() {
+      const text = textInput.value;
+      const predictions = predictPII(text, classRoster);
+      renderRoster(predictions);
+      return predictions;
+    }
+
+    function addRosterItem() {
+      const name = newRosterName.value.trim();
+      if (name) {
+        if (!classRoster.includes(name)) {
+          classRoster.push(name);
+          newRosterName.value = '';
+          runLocalPrediction();
+        }
+      }
+    }
+
+    // Interactive Intercept Workflow
+    let currentPredictions = [];
+    let currentText = '';
+    
+    function handleAnalyze() {
+      const predictions = runLocalPrediction();
+      if (predictions.length === 0) {
+        alert('No PII detected. Your input is fully clean!');
+      } else {
+        alert(`Predict Engine completed: Identified ${predictions.length} potential PII risks in your input text.`);
+      }
+    }
+
+    function handleSubmit() {
+      currentText = textInput.value;
+      currentPredictions = predictPII(currentText, classRoster);
+      
+      if (currentPredictions.length === 0) {
+        // No PII, directly mock sending
+        executeCloudCall(currentText, {}, false);
+      } else {
+        // PII detected: Open Intercept Warning Modal
+        openInterceptModal(currentText, currentPredictions);
+      }
+    }
+
+    function getBadgeClass(type) {
+      switch (type) {
+        case 'ROSTER_NAME': return 'pii-badge-roster';
+        case 'NLP_NAME': return 'pii-badge-nlp';
+        case 'EMAIL': return 'pii-badge-email';
+        case 'PHONE': return 'pii-badge-phone';
+        case 'STUDENT_ID': return 'pii-badge-id';
+        default: return '';
+      }
+    }
+
+    function openInterceptModal(text, predictions) {
+      piiItemsList.innerHTML = '';
+      
+      // Build explanation items
+      predictions.forEach((pred, i) => {
+        const div = document.createElement('div');
+        div.className = 'pii-item';
+        
+        div.innerHTML = `
+          <span class="pii-badge ${getBadgeClass(pred.type)}">${pred.type.replace('_', ' ')}</span>
+          <div class="pii-details">
+            <div class="pii-details-header">
+              <span class="pii-term">${escapeHtml(pred.term)}</span>
+              <div class="action-controls">
+                <select class="action-select" data-index="${i}">
+                  <option value="pseudonymize">Pseudonymize (Safe)</option>
+                  <option value="redact">Redact (Block)</option>
+                  <option value="whitelist">Ignore/Whitelist</option>
+                </select>
+              </div>
+            </div>
+            <div class="pii-explain">${escapeHtml(pred.reason)}</div>
+          </div>
+        `;
+        piiItemsList.appendChild(div);
+      });
+
+      // Show initial comparison
+      updateModalComparison(text, predictions);
+      
+      // Bind changes in dropdowns to comparison update
+      const dropdowns = piiItemsList.querySelectorAll('.action-select');
+      dropdowns.forEach(drop => {
+        drop.addEventListener('change', () => {
+          updateModalComparison(text, predictions);
+        });
+      });
+
+      interceptOverlay.style.display = 'flex';
+    }
+
+    function getSelectedActions(predictions) {
+      const dropdowns = piiItemsList.querySelectorAll('.action-select');
+      const actions = [];
+      dropdowns.forEach(drop => {
+        const index = parseInt(drop.getAttribute('data-index'));
+        actions.push({
+          prediction: predictions[index],
+          action: drop.value
+        });
+      });
+      return actions;
+    }
+
+    function updateModalComparison(text, predictions) {
+      const actions = getSelectedActions(predictions);
+      
+      // Original Text Highlights
+      let origHtml = text;
+      // Replace from back to front
+      const sortedPredictions = [...predictions].sort((a, b) => b.index - a.index);
+      sortedPredictions.forEach(pred => {
+        const highlight = `<mark>${escapeHtml(pred.term)}</mark>`;
+        origHtml = origHtml.substring(0, pred.index) + highlight + origHtml.substring(pred.index + pred.term.length);
+      });
+      compOriginal.innerHTML = origHtml;
+
+      // Sanitized/Pseudonymized Highlights
+      let sanitizedText = text;
+      
+      // Build mock token replacement based on actions
+      const termToTokenMap = {};
+      let studentCounter = 0;
+      let idCounter = 0;
+      let emailCounter = 0;
+      let phoneCounter = 0;
+
+      actions.forEach(({ prediction, action }) => {
+        const term = prediction.term;
+        const termKey = term.toLowerCase();
+        
+        if (action === 'whitelist') {
+          termToTokenMap[termKey] = term; // sent as is
+        } else if (action === 'redact') {
+          termToTokenMap[termKey] = '████████';
+        } else if (action === 'pseudonymize') {
+          if (!termToTokenMap[termKey]) {
+            if (prediction.type === 'ROSTER_NAME' || prediction.type === 'NLP_NAME') {
+              const letter = String.fromCharCode(65 + (studentCounter % 26));
+              termToTokenMap[termKey] = `__STUDENT_${letter}__`;
+              studentCounter++;
+            } else if (prediction.type === 'STUDENT_ID') {
+              termToTokenMap[termKey] = `__STUDENT_ID_${++idCounter}__`;
+            } else if (prediction.type === 'EMAIL') {
+              termToTokenMap[termKey] = `__EMAIL_${++emailCounter}__`;
+            } else if (prediction.type === 'PHONE') {
+              termToTokenMap[termKey] = `__PHONE_${++phoneCounter}__`;
+            }
+          }
+        }
+      });
+
+      // Apply replacements back-to-front
+      const sortedActions = [...actions].sort((a, b) => b.prediction.index - a.prediction.index);
+      let markedSanitizedHtml = text;
+      
+      sortedActions.forEach(({ prediction, action }) => {
+        const replacement = termToTokenMap[prediction.term.toLowerCase()];
+        let replacementHtml = replacement;
+        
+        if (action === 'pseudonymize') {
+          replacementHtml = `<mark class="pseudonymized">${escapeHtml(replacement)}</mark>`;
+        } else if (action === 'redact') {
+          replacementHtml = `<mark style="background: rgba(255,255,255,0.15); color: #cbd5e1; border-color: rgba(255,255,255,0.2);">${escapeHtml(replacement)}</mark>`;
+        }
+        
+        markedSanitizedHtml = markedSanitizedHtml.substring(0, prediction.index) + 
+                              replacementHtml + 
+                              markedSanitizedHtml.substring(prediction.index + prediction.term.length);
+      });
+
+      compSanitized.innerHTML = markedSanitizedHtml;
+    }
+
+    function executeCloudCall(inputText, tokenMap, wasPIIBlocked = true, rawOverride = false) {
+      interceptOverlay.style.display = 'none';
+      
+      // Update UI Logs
+      cloudPayloadView.innerText = `PROMPT SENT TO CLOUD LLM:\n\n${inputText}`;
+      
+      // Update Privacy Metric
+      if (rawOverride) {
+        metricPrivacyLeak.innerText = '100.00%';
+        metricPrivacyLeak.className = 'metric-value';
+        metricPrivacyLeak.style.color = 'var(--color-danger)';
+      } else {
+        metricPrivacyLeak.innerText = '0.00%';
+        metricPrivacyLeak.className = 'metric-value secure';
+        metricPrivacyLeak.style.color = 'var(--color-success)';
+      }
+      
+      // Simulating a nice latency delay
+      finalRenderedOutput.innerText = 'Sending sanitised payload to Cloud LLM...';
+      finalRenderedOutput.className = 'output-box';
+      
+      setTimeout(() => {
+        // Formulate a mock LLM output using the tokens we sent it
+        let mockLlmResponse = "";
+        
+        if (rawOverride) {
+          // If sent raw, the LLM uses the raw student names directly
+          mockLlmResponse = `Here is your lesson plan:
+  
+### Differentiated Algebra Lesson Plan
+- **Standard Objective**: Work through quadratic formula examples.
+- **Support Cohort (Tommy Henderson)**: Tommy requires additional assistance. Pair Tommy with a peer tutor or spend 10 minutes at the start of student practice to review factoring methods.
+- **Extension Cohort (Sarah Jenkins)**: Sarah is highly advanced. Task Sarah to complete the algebra extension worksheet and optionally assist others.
+  
+**Parent Notification Note**:
+An email has been formatted to parents at liam.vance@school.edu (mobile: 206-555-0192) summarizing the algebra lesson progress. 
+Student record ID STU-88291 updated.`;
+        } else {
+          // LLM works with the pseudonyms we sent it!
+          mockLlmResponse = `Here is your lesson plan:
+  
+### Differentiated Algebra Lesson Plan
+- **Standard Objective**: Work through quadratic formula examples.
+- **Support Cohort (__STUDENT_A__)**: __STUDENT_A__ requires additional assistance. Pair __STUDENT_A__ with a peer tutor or spend 10 minutes at the start of student practice to review factoring methods.
+- **Extension Cohort (__STUDENT_B__)**: __STUDENT_B__ is highly advanced. Task __STUDENT_B__ to complete the algebra extension worksheet and optionally assist others.
+  
+**Parent Notification Note**:
+An email has been formatted to parents at __EMAIL_1__ (mobile: __PHONE_1__) summarizing the algebra lesson progress. 
+Student record ID __STUDENT_ID_1__ updated.`;
+        }
+
+        // Now de-pseudonymize on the client!
+        const restoredText = rawOverride ? mockLlmResponse : depseudonymize(mockLlmResponse, tokenMap);
+        
+        // Render final output with highlights where things were replaced
+        let outputHtml = escapeHtml(restoredText);
+        
+        if (!rawOverride) {
+          // Highlight restored names visually for the teacher
+          Object.keys(tokenMap).forEach(token => {
+            const original = tokenMap[token];
+            const escapedOriginal = escapeHtml(original);
+            
+            // Build a regex for exact replacement highlight
+            const regex = new RegExp(escapedOriginal, 'g');
+            outputHtml = outputHtml.replace(regex, `<mark class="restored">${escapedOriginal}</mark>`);
+          });
+        }
+        
+        finalRenderedOutput.innerHTML = outputHtml;
+      }, 1200);
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Modal action bindings
+    btnModalCancel.addEventListener('click', () => {
+      interceptOverlay.style.display = 'none';
+    });
+
+    btnModalRaw.addEventListener('click', () => {
+      const confirmWarning = confirm("WARNING: Sending unmasked names violates student privacy policies. Do you wish to override security constraints?");
+      if (confirmWarning) {
+        executeCloudCall(currentText, {}, false, true);
+      }
+    });
+
+    btnModalSanitize.addEventListener('click', () => {
+      // 1. Run actual pseudonymization based on modal options
+      const actions = getSelectedActions(currentPredictions);
+      
+      const termToTokenMap = {};
+      const tokenToTermMap = {};
+      let studentCounter = 0;
+      let idCounter = 0;
+      let emailCounter = 0;
+      let phoneCounter = 0;
+
+      actions.forEach(({ prediction, action }) => {
+        const term = prediction.term;
+        const termKey = term.toLowerCase();
+        
+        if (action === 'whitelist') {
+          // Ignore, no mapping
+        } else if (action === 'redact') {
+          termToTokenMap[termKey] = '████████';
+        } else if (action === 'pseudonymize') {
+          if (!termToTokenMap[termKey]) {
+            if (prediction.type === 'ROSTER_NAME' || prediction.type === 'NLP_NAME') {
+              const letter = String.fromCharCode(65 + (studentCounter % 26));
+              const token = `__STUDENT_${letter}__`;
+              termToTokenMap[termKey] = token;
+              tokenToTermMap[token] = term;
+              studentCounter++;
+            } else if (prediction.type === 'STUDENT_ID') {
+              const token = `__STUDENT_ID_${++idCounter}__`;
+              termToTokenMap[termKey] = token;
+              tokenToTermMap[token] = term;
+            } else if (prediction.type === 'EMAIL') {
+              const token = `__EMAIL_${++emailCounter}__`;
+              termToTokenMap[termKey] = token;
+              tokenToTermMap[token] = term;
+            } else if (prediction.type === 'PHONE') {
+              const token = `__PHONE_${++phoneCounter}__`;
+              termToTokenMap[termKey] = token;
+              tokenToTermMap[token] = term;
+            }
+          }
+        }
+      });
+
+      // Replace back-to-front in currentText
+      const sortedActions = [...actions].sort((a, b) => b.prediction.index - a.prediction.index);
+      let sanitizedText = currentText;
+      
+      sortedActions.forEach(({ prediction, action }) => {
+        const replacement = termToTokenMap[prediction.term.toLowerCase()];
+        if (replacement) {
+          sanitizedText = sanitizedText.substring(0, prediction.index) + 
+                         replacement + 
+                         sanitizedText.substring(prediction.index + prediction.term.length);
+        }
+      });
+
+      executeCloudCall(sanitizedText, tokenToTermMap, true, false);
+    });
+
+    // Outer buttons binding
+    btnAnalyze.addEventListener('click', handleAnalyze);
+    btnSubmit.addEventListener('click', handleSubmit);
+    btnLoadSample.addEventListener('click', loadSamplePrompt);
+    btnAddRoster.addEventListener('click', addRosterItem);
+    rosterFileInput.addEventListener('change', handleRosterUpload);
+    
+    newRosterName.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addRosterItem();
+      }
+    });
+
+    function handleRosterUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        const parsedNames = parseRosterFile(text, file.name);
+        
+        if (parsedNames.length === 0) {
+          alert("No student names could be extracted from this file. Please verify the file format.");
+          return;
+        }
+        
+        const confirmReplace = confirm(`Extracted ${parsedNames.length} student names.\n\nWould you like to REPLACE the current roster with these names?\n(Click 'Cancel' to APPEND these names instead)`);
+        
+        if (confirmReplace) {
+          classRoster = parsedNames;
+        } else {
+          classRoster = [...new Set([...classRoster, ...parsedNames])];
+        }
+        
+        runLocalPrediction();
+        alert(`Successfully imported ${parsedNames.length} names to the active class roster!`);
+      };
+      
+      reader.readAsText(file);
+      e.target.value = ''; // Reset input to allow uploading the same file again
+    }
+
+    function parseRosterFile(text, fileName) {
+      const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+      const names = [];
+      
+      if (fileName.endsWith('.json')) {
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) {
+            return parsed.map(item => typeof item === 'string' ? item.trim() : (item.name || item.studentName || '')).filter(Boolean);
+          }
+        } catch (e) {
+          alert("Invalid JSON file structure. Expected a JSON array of student names.");
+        }
+      } else if (fileName.endsWith('.csv')) {
+        let hasHeader = false;
+        if (lines.length > 0) {
+          const firstLineLower = lines[0].toLowerCase();
+          if (firstLineLower.includes('name') || firstLineLower.includes('student') || firstLineLower.includes('id')) {
+            hasHeader = true;
+          }
+        }
+        
+        const startIndex = hasHeader ? 1 : 0;
+        for (let i = startIndex; i < lines.length; i++) {
+          const line = lines[i];
+          let cols = [];
+          if (line.includes('"')) {
+            cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/"/g, '').trim());
+          } else {
+            cols = line.split(',').map(col => col.trim());
+          }
+          
+          if (cols.length > 0) {
+            if (cols.length === 2 && !cols[0].includes(' ') && !cols[1].includes(' ')) {
+              names.push(`${cols[1]} ${cols[0]}`); // "LastName, FirstName" -> "FirstName LastName"
+            } else {
+              const nameCol = cols.find(c => c.length > 1 && /^[a-zA-Z\s.-]+$/.test(c)) || cols[0];
+              if (nameCol) names.push(nameCol);
+            }
+          }
+        }
+      } else {
+        // Plain TXT: One name per line
+        return lines;
+      }
+      return names;
+    }
+
+    // Run Initialization
+    init();
+  </script>
+</body>
+</html>
