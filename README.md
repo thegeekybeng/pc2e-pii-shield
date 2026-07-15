@@ -49,6 +49,12 @@ The system works as a client-side middleware/interceptor layer that wraps LLM ca
 - `piiFilter.js`: Core ES module containing `predictPII`, `pseudonymize`, and `depseudonymize`.
 - `classRoster.json`: Sample list of student names loaded dynamically into the browser cache.
 - `verify_pii.js`: Automated Node.js verification test suite checking PII boundary cases.
+- `extension/`: Chrome browser extension for zero-code injection on Lumina AI.
+  - `manifest.json`: Manifest V3 setup.
+  - `contentScript.js`: Content script that manages roster storage and injects the proxy hooks.
+  - `inject.js`: Overrides the page's native `window.fetch` and handles masking transparently.
+  - `popup.html` & `popup.js`: Dashboard interface for roster uploads.
+  - `icon.png`: Icon assets.
 
 ---
 
@@ -68,25 +74,42 @@ To run the interactive UI dashboard:
 
 ---
 
-## 📋 Roster Configuration: Mock vs Real Roster
+## 📦 Packaging & Integration Options
 
-The PII Shield relies on a roster list to match student names. You can test and deploy this using either the preconfigured mock roster or your own real roster:
+To deploy this interceptor directly to **EtonHouse's Lumina AI** (or any lesson planner/LLM app), choose one of the packaging formats below:
 
-### 1. Using the Default Mock Roster
-- **Automatic Load:** When you run the dashboard, it automatically loads a mock student list from [classRoster.json](file:~/school-course-planner-pii/classRoster.json) (falling back to a hardcoded array of names like Tommy, Sarah, and Alex if the file is missing).
-- **Edit Default Mock Data:** You can customize this default mock list by editing [classRoster.json](file:~/school-course-planner-pii/classRoster.json) directly.
+### 1. Browser Extension (Zero-Code Deployment)
+Perfect if you run Lumina AI as a third-party service and cannot change its underlying code directly.
+*   **How it Works:** The extension injects `inject.js` directly into Lumina's frontend execution context. It intercepts `window.fetch` requests destined for AI endpoints, executes `pseudonymize` in-browser, forwards the sanitized prompt, and `depseudonymizes` the response before the page displays it.
+*   **To Install & Test:**
+    1. Open Google Chrome and go to `chrome://extensions/`.
+    2. Enable **Developer mode** (top-right toggle).
+    3. Click **"Load unpacked"** (top-left button).
+    4. Select the `extension/` folder in this repository.
+    5. Click the extension icon in your toolbar, upload `classRoster.json`, and run your lesson planner. All PII is masked transparently!
 
-### 2. Uploading a Real Roster
-To test with your actual class roster:
-1. Prepare a file in one of the following formats:
-   - **TXT:** A plain text file with one student name per line.
-   - **CSV:** A roster spreadsheet (header rows like `Name` or `Student Name` are automatically detected and skipped; comma-quoted rows and `"LastName, FirstName"` order are automatically converted to standard `"FirstName LastName"`).
-   - **JSON:** A JSON array of name strings (e.g. `["Student A", "Student B"]`).
-2. In the **Active Student Class Roster** card on the dashboard, click the **"Upload Roster"** button.
-3. Select your file.
-4. **Choose your Import Action when prompted:** 
-   - Click **OK (REPLACE)** to completely remove the mock roster and use only your uploaded names.
-   - Click **Cancel (APPEND)** to keep the mock roster and add your uploaded names to it.
+### 2. npm Package (Direct Codebase Integration)
+If EtonHouse owns the Lumina AI codebase and wants to integrate this directly as a secure software dependency:
+*   **To Install:**
+    ```bash
+    npm install @thegeekybeng/pii-shield
+    ```
+*   **To Integrate:**
+    ```javascript
+    import { predictPII, pseudonymize, depseudonymize } from '@thegeekybeng/pii-shield';
+
+    // 1. Scan prompt for PII
+    const matches = predictPII(promptText, classRosterArray);
+    
+    // 2. Mask names before sending to Azure OpenAI/Cloud LLM
+    const { sanitizedText, tokenMap } = pseudonymize(promptText, matches);
+    
+    // 3. Send sanitized prompt to LLM
+    const response = await callLuminaLLM(sanitizedText);
+    
+    // 4. Restore names locally in the UI
+    const finalSafeText = depseudonymize(response.choices[0].message.content, tokenMap);
+    ```
 
 ---
 

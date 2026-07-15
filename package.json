@@ -1,0 +1,24 @@
+{
+  "name": "@thegeekybeng/pii-shield",
+  "version": "1.0.0",
+  "description": "PC2E-aligned client-side Personally Identifiable Information (PII) masking interceptor for cloud LLMs.",
+  "type": "module",
+  "main": "./piiFilter.js",
+  "exports": {
+    ".": "./piiFilter.js"
+  },
+  "scripts": {
+    "test": "node verify_pii.js"
+  },
+  "keywords": [
+    "pii",
+    "privacy",
+    "guardrails",
+    "llm",
+    "agentic-ai",
+    "pc2e",
+    "security"
+  ],
+  "author": "Andrew Yeo <andrew.yeo.mc@gmail.com> (https://github.com/thegeekybeng)",
+  "license": "MIT"
+}

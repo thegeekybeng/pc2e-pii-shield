@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: #f8fafc;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logo span {
+      background: linear-gradient(90deg, #38bdf8 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+    .stats {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-top: 4px;
+    }
+    .stats-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.2s;
+      margin-top: 8px;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #475569;
+      margin-top: 16px;
+    }
+    .name-list {
+      max-height: 100px;
+      overflow-y: auto;
+      font-size: 12px;
+      color: #cbd5e1;
+      padding: 4px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🛡️ <span>PII Shield</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Shield Status</div>
+    <div class="status-badge" id="shield-status">● Active</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Class Roster</div>
+    <div class="stats" id="roster-count">0</div>
+    <div class="stats-label">Student Names Masked In-Browser</div>
+    
+    <label class="btn" for="roster-file">Upload New Roster</label>
+    <input type="file" id="roster-file" accept=".txt,.csv,.json">
+    
+    <button class="btn btn-secondary" id="clear-roster">Clear Active Roster</button>
+    <div class="name-list" id="name-preview" style="display: none;"></div>
+  </div>
+
+  <div class="footer">
+    PC2E AI Governance Framework compliant. Managed client-side.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
