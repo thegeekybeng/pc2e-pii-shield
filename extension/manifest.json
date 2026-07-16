@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "PII Shield — PC2E Privacy Interceptor",
   "version": "1.0.0",
-  "description": "Zero-code client-side PII masking for Lumina AI and other cloud LLM portals.",
+  "description": "Zero-code client-side PII masking for cloud LLM portals and GenAI web applications.",
   "permissions": [
     "storage"
   ],

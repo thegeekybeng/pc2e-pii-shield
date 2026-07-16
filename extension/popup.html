@@ -30,6 +30,7 @@
     .logo span {
       background: linear-gradient(90deg, #38bdf8 0%, #a855f7 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     .card {
@@ -129,11 +130,11 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Class Roster</div>
+    <div class="card-title">Identity Roster</div>
     <div class="stats" id="roster-count">0</div>
-    <div class="stats-label">Student Names Masked In-Browser</div>
+    <div class="stats-label">Roster Names Masked In-Browser</div>
     
-    <label class="btn" for="roster-file">Upload New Roster</label>
+    <label class="btn" for="roster-file">Upload Roster File</label>
     <input type="file" id="roster-file" accept=".txt,.csv,.json">
     
     <button class="btn btn-secondary" id="clear-roster">Clear Active Roster</button>

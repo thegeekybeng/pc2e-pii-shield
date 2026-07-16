@@ -54,11 +54,11 @@
       }
     });
 
-    // 2. Student ID Regex
-    const studentIdRegex = /\b(STU-\d{5}|[sS]\d{7}[a-zA-Z])\b/g;
+    // 2. Identifier/ID Regex (STU, EMP, ACC, ORD and SG NRIC)
+    const idRegex = /\b((?:STU|EMP|ACC|ORD)-\d{5}|[sS]\d{7}[a-zA-Z])\b/gi;
     let idMatch;
-    while ((idMatch = studentIdRegex.exec(text)) !== null) {
-      matches.push({ term: idMatch[0], index: idMatch.index, length: idMatch[0].length, type: 'STUDENT_ID' });
+    while ((idMatch = idRegex.exec(text)) !== null) {
+      matches.push({ term: idMatch[0], index: idMatch.index, length: idMatch[0].length, type: 'IDENTIFIER' });
     }
 
     // 3. Email Regex
@@ -109,7 +109,7 @@
     const sorted = [...approvedMatches].sort((a, b) => b.index - a.index);
     const termToTokenMap = {};
     const tokenToTermMap = {};
-    let studentCounter = 0;
+    let personCounter = 0;
     let idCounter = 0;
     let emailCounter = 0;
     let phoneCounter = 0;
@@ -120,13 +120,13 @@
       
       if (!termToTokenMap[termKey]) {
         if (m.type === 'ROSTER_NAME' || m.type === 'NLP_NAME') {
-          const letter = String.fromCharCode(65 + (studentCounter % 26));
-          const token = `__STUDENT_${letter}__`;
+          const letter = String.fromCharCode(65 + (personCounter % 26));
+          const token = `__PERSON_${letter}__`;
           termToTokenMap[termKey] = token;
           tokenToTermMap[token] = term;
-          studentCounter++;
-        } else if (m.type === 'STUDENT_ID') {
-          const token = `__STUDENT_ID_${++idCounter}__`;
+          personCounter++;
+        } else if (m.type === 'IDENTIFIER') {
+          const token = `__ID_${++idCounter}__`;
           termToTokenMap[termKey] = token;
           tokenToTermMap[token] = term;
         } else if (m.type === 'EMAIL') {
@@ -171,14 +171,17 @@
     const options = args[1];
 
     // Check if the request is destined for an LLM API (e.g. OpenAI, Azure OpenAI, custom backend completion)
-    const isLuminaOrAiApi = typeof url === 'string' && (
+    const isAiEndpoint = typeof url === 'string' && (
       url.includes('openai.com') || 
+      url.includes('anthropic.com') || 
+      url.includes('googleapis.com/v1/models') || 
+      url.includes('api.cohere.ai') || 
       url.includes('/chat/completions') || 
-      url.includes('lumina.ai') ||
-      url.includes('/api/ai')
+      url.includes('/api/ai') || 
+      url.includes('/v1/chat')
     );
 
-    if (isLuminaOrAiApi && options && options.body) {
+    if (isAiEndpoint && options && options.body) {
       try {
         let bodyObj = JSON.parse(options.body);
         let intercepted = false;

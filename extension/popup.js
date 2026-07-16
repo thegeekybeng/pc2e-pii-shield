@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load and display active roster state
   function loadRosterState() {
-    chrome.storage.local.get(["classRoster"], (result) => {
-      const roster = result.classRoster || [];
+    chrome.storage.local.get(["piiRoster"], (result) => {
+      const roster = result.piiRoster || [];
       rosterCountEl.textContent = roster.length;
       
       if (roster.length > 0) {
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Skip typical headers
             const lower = cleaned.toLowerCase();
-            if (index === 0 && (lower.includes('name') || lower.includes('student') || lower.includes('roster'))) {
+            if (index === 0 && (lower.includes('name') || lower.includes('student') || lower.includes('roster') || lower.includes('employee') || lower.includes('customer'))) {
               return;
             }
             
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const uniqueNames = [...new Set(names)].filter(Boolean);
 
         // Save to chrome.storage
-        chrome.storage.local.set({ classRoster: uniqueNames }, () => {
+        chrome.storage.local.set({ piiRoster: uniqueNames }, () => {
           console.log("🛡️ Roster updated with", uniqueNames.length, "names.");
           loadRosterState();
         });
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Clear active roster
   clearRosterBtn.addEventListener('click', () => {
-    chrome.storage.local.set({ classRoster: [] }, () => {
+    chrome.storage.local.set({ piiRoster: [] }, () => {
       console.log("🛡️ Roster cleared.");
       loadRosterState();
     });

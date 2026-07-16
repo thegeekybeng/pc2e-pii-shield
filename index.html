@@ -467,6 +467,7 @@
       font-size: 0.75rem;
       padding: 0.25rem 0.5rem;
       outline: none;
+      cursor: pointer;
     }
     
     .action-select:focus {
@@ -527,6 +528,7 @@
       background: rgba(6, 182, 212, 0.2);
       color: #67e8f9;
       border-bottom: 1px solid rgba(6, 182, 212, 0.5);
+      border-radius: 0.25rem;
     }
     
     .modal-footer {
@@ -724,22 +726,33 @@
   <main>
     <!-- Left Column: Input Sandbox -->
     <div class="left-panel">
-      <!-- Course Planner Input -->
+      <!-- Workspace Input Sandbox -->
       <div class="card">
         <div class="card-title">
           <span>
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-            Teacher Input Workspace
+            Input Sandbox Workspace
           </span>
           <button id="btn-load-sample" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Load Sample with PII</button>
         </div>
         
-        <p class="metric-desc" style="margin-top: -0.5rem;">
-          Type or draft your lesson guidelines below. Names of students or private data will be detected on-the-fly and prevented from leaving the browser.
+        <!-- Domain Selector Block -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 0.75rem; padding: 0.5rem 0.75rem; margin-top: -0.25rem;">
+          <label for="domain-preset-select" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Domain Preset:</label>
+          <select id="domain-preset-select" class="action-select" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: 0.375rem; background: #0f172a; border: 1px solid var(--card-border); color: #fff; outline: none;">
+            <option value="education">Education (Lesson Plans)</option>
+            <option value="support">Customer Support (Tickets)</option>
+            <option value="hr">Human Resources (Employee Reviews)</option>
+            <option value="finance">Finance (Account Audits)</option>
+          </select>
+        </div>
+        
+        <p class="metric-desc" style="margin-top: -0.25rem;">
+          Draft your prompt or text below. Roster names, emails, phone numbers, and identifiers will be detected on-the-fly and masked before egress to cloud services.
         </p>
         
         <div class="input-wrapper">
-          <textarea id="teacher-prompt-input" class="teacher-prompt" placeholder="Draft your course planning prompt here... (e.g. 'Draft a lesson plan for math class. Make sure Tommy Henderson gets additional assistance with algebra. Also, send results to parents at sarah@school.edu')"></textarea>
+          <textarea id="teacher-prompt-input" class="teacher-prompt" placeholder="Draft your prompt here..."></textarea>
         </div>
         
         <div class="button-group">
@@ -754,17 +767,17 @@
         </div>
       </div>
       
-      <!-- Student Class Roster -->
+      <!-- Active Entity Roster -->
       <div class="card">
         <div class="card-title">
           <span>
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="card-title-icon"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m16-10a4 4 0 11-8 0 4 4 0 018 0zm6 10v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path></svg>
-            Active Student Class Roster
+            Active Entity & Identity Roster
           </span>
-          <span id="roster-count" class="pii-badge pii-badge-id">0 Students</span>
+          <span id="roster-count" class="pii-badge pii-badge-id">0 Entities</span>
         </div>
         <p class="metric-desc" style="margin-top: -0.5rem;">
-          These student records are saved <strong>exclusively in local browser memory</strong> for instant match forecasting. They are never sent to the server.
+          These roster records are saved <strong>exclusively in local browser memory</strong> for instant match forecasting. They are never sent to the server.
         </p>
         
         <div id="roster-container" class="roster-grid">
@@ -773,7 +786,7 @@
         
         <div class="roster-input-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
           <div style="display: flex; gap: 0.5rem; width: 100%;">
-            <input type="text" id="new-roster-name" class="roster-input" placeholder="Add student (e.g. Liam Vance)" style="flex: 1;" />
+            <input type="text" id="new-roster-name" class="roster-input" placeholder="Add name (e.g. Liam Vance)" style="flex: 1;" />
             <button id="btn-add-roster" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Add</button>
           </div>
           
@@ -840,7 +853,7 @@
           <div class="flow-number">1</div>
           <div class="flow-details">
             <h5>Predict & Pseudonymize Pipeline</h5>
-            <p>This is the actual payload sent out of the school gateway to the cloud LLM.</p>
+            <p>This is the actual sanitized payload sent to the cloud LLM.</p>
           </div>
         </div>
         
@@ -850,12 +863,12 @@
           <div class="flow-number">2</div>
           <div class="flow-details">
             <h5>De-pseudonymize & Render Pipeline</h5>
-            <p>Cloud LLM output is processed client-side. Original student names are re-stitched back into the text.</p>
+            <p>Cloud LLM output is processed client-side. Original roster identities and PII are dynamically restored.</p>
           </div>
         </div>
         
         <div id="final-rendered-output" class="output-box empty">
-          Submit a lesson planning prompt to execute the full PII Shield pipeline and view final results.
+          Submit a prompt to execute the full PII Shield pipeline and view final results.
         </div>
       </div>
     </div>
@@ -866,13 +879,13 @@
     <div class="intercept-modal">
       <div class="modal-header">
         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: white;"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        <h3>Student PII Upload Intercepted!</h3>
+        <h3>PII Egress Intercepted!</h3>
       </div>
       
       <div class="modal-body">
         <div class="warning-description">
           <strong>PII Shield Privacy Guardrail Triggered</strong>
-          Your course planning content contains details that match known students or standard PII formats. Uploading these raw names violates FERPA & student privacy guidelines.
+          Your input content contains details that match known roster identities or standard PII formats. Uploading raw personal details violates organizational data governance and privacy guidelines (e.g. PDPA, GDPR).
         </div>
         
         <div style="font-size: 0.9rem; font-weight: 600; color: #ffffff;">Detected PII Explanations:</div>
@@ -911,6 +924,49 @@
   <script type="module">
     import { predictPII, pseudonymize, depseudonymize } from './piiFilter.js';
 
+    // Domain Presets & Configs
+    const DOMAIN_PRESETS = {
+      education: {
+        roster: [
+          "Tommy Henderson", "Sarah Jenkins", "Alex Rivera", "Emma Watson",
+          "Liam Vance", "Olivia Carter", "Noah Brooks", "Chloe Bennett",
+          "Mason Greenwood", "Lily Allen"
+        ],
+        prompt: `Create a differentiated lesson plan for my algebra class.
+Tommy Henderson needs extra guidance with quadratic equations because he struggled in the quiz.
+Sarah Jenkins is advanced and can be given the extension worksheet.
+Also, when complete, draft a notification email to be sent to parent guardian contact at liam.vance@school.edu or phone 206-555-0192 for validation.
+Student ID: STU-88291 will be monitored.`
+      },
+      support: {
+        roster: [
+          "John Doe", "Jane Smith", "Robert Johnson", "Patricia Williams",
+          "Jennifer Brown", "Linda Jones", "Elizabeth Garcia"
+        ],
+        prompt: `Draft a reply to resolving customer support case.
+John Doe reports that order ORD-99201 has not arrived at his address yet.
+Please check tracking and contact his alternate email at john.doe.partner@example.com or call phone 555-381-0291 to clarify the shipping details.
+Verify identity using FIN S7283918B.`
+      },
+      hr: {
+        roster: [
+          "Alice Vance", "Charlie Brown", "Diana Prince", "Bruce Wayne",
+          "Clark Kent", "Peter Parker", "Tony Stark", "Daniel Miller"
+        ],
+        prompt: `Prepare an annual performance evaluation review.
+Alice Vance (Employee ID EMP-10294) has exceeded key performance targets for this quarter.
+Coordinate feedback with HR manager Daniel Miller at daniel.miller@company.com or phone 555-901-4821.`
+      },
+      finance: {
+        roster: [
+          "Sarah Jenkins", "Alex Rivera", "Ava Montgomery", "Sophia Peterson",
+          "Jackson Miller", "Mia Thorne"
+        ],
+        prompt: `Assess the risk profile for client account ACC-48291 under client name Sarah Jenkins.
+Verify last month's wire transaction of $5,000 sent from alex.rivera@finance-hub.org to phone 555-481-9928.`
+      }
+    };
+
     // Roster state
     let classRoster = [];
     
@@ -919,6 +975,7 @@
     const rosterContainer = document.getElementById('roster-container');
     const rosterCount = document.getElementById('roster-count');
     const newRosterName = document.getElementById('new-roster-name');
+    const domainSelect = document.getElementById('domain-preset-select');
     
     const btnLoadSample = document.getElementById('btn-load-sample');
     const btnAnalyze = document.getElementById('btn-analyze');
@@ -943,40 +1000,41 @@
     const metricPrivacyLeak = document.getElementById('metric-privacy-leak');
     const metricDetectRate = document.getElementById('metric-detect-rate');
 
-    // Load initial roster
-    async function init() {
-      try {
-        const response = await fetch('./classRoster.json');
-        classRoster = await response.json();
-      } catch (err) {
-        console.warn('Could not load roster file, using fallback array.', err);
-        classRoster = [
-          "Tommy Henderson", "Sarah Jenkins", "Alex Rivera", "Emma Watson",
-          "Liam Vance", "Olivia Carter", "Noah Brooks"
-        ];
-      }
-      renderRoster();
+    // Initialize Preset
+    function init() {
+      // Load education by default
+      loadPreset('education');
       
-      // Load standard sample prompt
-      loadSamplePrompt();
+      // Bind domain preset selection changes
+      domainSelect.addEventListener('change', (e) => {
+        loadPreset(e.target.value);
+      });
+    }
+
+    function loadPreset(key) {
+      const config = DOMAIN_PRESETS[key] || DOMAIN_PRESETS.education;
+      classRoster = [...config.roster];
+      textInput.value = config.prompt;
+      renderRoster();
+      runLocalPrediction();
     }
 
     function renderRoster(matches = []) {
       rosterContainer.innerHTML = '';
-      rosterCount.innerText = `${classRoster.length} Students`;
+      rosterCount.innerText = `${classRoster.length} Entities`;
       
-      classRoster.forEach(student => {
+      classRoster.forEach(person => {
         const div = document.createElement('div');
         div.className = 'roster-item';
-        div.innerText = student;
+        div.innerText = person;
         
         // Highlight if matches current predictions
-        const lowercaseStudent = student.toLowerCase();
-        const lowercaseFirst = student.split(' ')[0].toLowerCase();
+        const lowercasePerson = person.toLowerCase();
+        const lowercaseFirst = person.split(' ')[0].toLowerCase();
         
         const isMatched = matches.some(m => {
           const val = m.term.toLowerCase();
-          return val === lowercaseStudent || val === lowercaseFirst;
+          return val === lowercasePerson || val === lowercaseFirst;
         });
         
         if (isMatched) {
@@ -988,13 +1046,9 @@
     }
 
     function loadSamplePrompt() {
-      textInput.value = `Create a differentiated lesson plan for my algebra class.
-Tommy Henderson needs extra guidance with quadratic equations because he struggled in the quiz.
-Sarah Jenkins is advanced and can be given the extension worksheet.
-Also, when complete, draft a notification email to be sent to parent guardian contact at liam.vance@school.edu or phone 206-555-0192 for validation.
-Student ID: STU-88291 will be monitored.`;
-      
-      // Run quick scan to highlight matching roster items initially
+      const presetKey = domainSelect.value;
+      const config = DOMAIN_PRESETS[presetKey] || DOMAIN_PRESETS.education;
+      textInput.value = config.prompt;
       runLocalPrediction();
     }
 
@@ -1048,7 +1102,7 @@ Student ID: STU-88291 will be monitored.`;
         case 'NLP_NAME': return 'pii-badge-nlp';
         case 'EMAIL': return 'pii-badge-email';
         case 'PHONE': return 'pii-badge-phone';
-        case 'STUDENT_ID': return 'pii-badge-id';
+        case 'IDENTIFIER': return 'pii-badge-id';
         default: return '';
       }
     }
@@ -1125,7 +1179,7 @@ Student ID: STU-88291 will be monitored.`;
       
       // Build mock token replacement based on actions
       const termToTokenMap = {};
-      let studentCounter = 0;
+      let personCounter = 0;
       let idCounter = 0;
       let emailCounter = 0;
       let phoneCounter = 0;
@@ -1141,11 +1195,11 @@ Student ID: STU-88291 will be monitored.`;
         } else if (action === 'pseudonymize') {
           if (!termToTokenMap[termKey]) {
             if (prediction.type === 'ROSTER_NAME' || prediction.type === 'NLP_NAME') {
-              const letter = String.fromCharCode(65 + (studentCounter % 26));
-              termToTokenMap[termKey] = `__STUDENT_${letter}__`;
-              studentCounter++;
-            } else if (prediction.type === 'STUDENT_ID') {
-              termToTokenMap[termKey] = `__STUDENT_ID_${++idCounter}__`;
+              const letter = String.fromCharCode(65 + (personCounter % 26));
+              termToTokenMap[termKey] = `__PERSON_${letter}__`;
+              personCounter++;
+            } else if (prediction.type === 'IDENTIFIER') {
+              termToTokenMap[termKey] = `__ID_${++idCounter}__`;
             } else if (prediction.type === 'EMAIL') {
               termToTokenMap[termKey] = `__EMAIL_${++emailCounter}__`;
             } else if (prediction.type === 'PHONE') {
@@ -1194,53 +1248,60 @@ Student ID: STU-88291 will be monitored.`;
         metricPrivacyLeak.style.color = 'var(--color-success)';
       }
       
-      // Simulating a nice latency delay
-      finalRenderedOutput.innerText = 'Sending sanitised payload to Cloud LLM...';
+      // Simulating latency delay
+      finalRenderedOutput.innerText = 'Sending sanitized payload to Cloud LLM...';
       finalRenderedOutput.className = 'output-box';
       
       setTimeout(() => {
-        // Formulate a mock LLM output using the tokens we sent it
+        const domain = domainSelect.value;
         let mockLlmResponse = "";
         
         if (rawOverride) {
-          // If sent raw, the LLM uses the raw student names directly
-          mockLlmResponse = `Here is your lesson plan:
-  
-### Differentiated Algebra Lesson Plan
-- **Standard Objective**: Work through quadratic formula examples.
-- **Support Cohort (Tommy Henderson)**: Tommy requires additional assistance. Pair Tommy with a peer tutor or spend 10 minutes at the start of student practice to review factoring methods.
-- **Extension Cohort (Sarah Jenkins)**: Sarah is highly advanced. Task Sarah to complete the algebra extension worksheet and optionally assist others.
-  
-**Parent Notification Note**:
-An email has been formatted to parents at liam.vance@school.edu (mobile: 206-555-0192) summarizing the algebra lesson progress. 
-Student record ID STU-88291 updated.`;
+          if (domain === 'education') {
+            mockLlmResponse = `Here is your lesson plan:
+- Tommy Henderson requires additional assistance. Pair Tommy with a peer tutor.
+- Sarah Jenkins is highly advanced. Task Sarah to complete the algebra extension worksheet.
+Email: liam.vance@school.edu, Phone: 206-555-0192, ID: STU-88291.`;
+          } else if (domain === 'support') {
+            mockLlmResponse = `Hello John Doe,
+Regarding order ORD-99201, check alternate contact at john.doe.partner@example.com / 555-381-0291. FIN: S7283918B.`;
+          } else if (domain === 'hr') {
+            mockLlmResponse = `Evaluation for Alice Vance (EMP-10294):
+Exceeded performance standards. Coordinate review with Daniel Miller (daniel.miller@company.com / 555-901-4821).`;
+          } else if (domain === 'finance') {
+            mockLlmResponse = `Risk profile evaluation for account ACC-48291 (Sarah Jenkins):
+Audited wire transfer of $5,000 sent from alex.rivera@finance-hub.org to phone 555-481-9928.`;
+          }
         } else {
-          // LLM works with the pseudonyms we sent it!
-          mockLlmResponse = `Here is your lesson plan:
-  
-### Differentiated Algebra Lesson Plan
-- **Standard Objective**: Work through quadratic formula examples.
-- **Support Cohort (__STUDENT_A__)**: __STUDENT_A__ requires additional assistance. Pair __STUDENT_A__ with a peer tutor or spend 10 minutes at the start of student practice to review factoring methods.
-- **Extension Cohort (__STUDENT_B__)**: __STUDENT_B__ is highly advanced. Task __STUDENT_B__ to complete the algebra extension worksheet and optionally assist others.
-  
-**Parent Notification Note**:
-An email has been formatted to parents at __EMAIL_1__ (mobile: __PHONE_1__) summarizing the algebra lesson progress. 
-Student record ID __STUDENT_ID_1__ updated.`;
+          if (domain === 'education') {
+            mockLlmResponse = `Here is your lesson plan:
+- __PERSON_A__ requires additional assistance. Pair __PERSON_A__ with a peer tutor.
+- __PERSON_B__ is highly advanced. Task __PERSON_B__ to complete the algebra extension worksheet.
+Email: __EMAIL_1__, Phone: __PHONE_1__, ID: __ID_1__.`;
+          } else if (domain === 'support') {
+            mockLlmResponse = `Hello __PERSON_A__,
+Regarding order __ID_1__, check alternate contact at __EMAIL_1__ / __PHONE_1__. FIN: __ID_2__.`;
+          } else if (domain === 'hr') {
+            mockLlmResponse = `Evaluation for __PERSON_A__ (__ID_1__):
+Exceeded performance standards. Coordinate review with __PERSON_B__ (__EMAIL_1__ / __PHONE_1__).`;
+          } else if (domain === 'finance') {
+            mockLlmResponse = `Risk profile evaluation for account __ID_1__ (__PERSON_A__):
+Audited wire transfer of $5,000 sent from __EMAIL_1__ to phone __PHONE_1__.`;
+          }
         }
 
-        // Now de-pseudonymize on the client!
+        // De-pseudonymize on the client!
         const restoredText = rawOverride ? mockLlmResponse : depseudonymize(mockLlmResponse, tokenMap);
         
         // Render final output with highlights where things were replaced
         let outputHtml = escapeHtml(restoredText);
         
         if (!rawOverride) {
-          // Highlight restored names visually for the teacher
+          // Highlight restored names visually
           Object.keys(tokenMap).forEach(token => {
             const original = tokenMap[token];
             const escapedOriginal = escapeHtml(original);
             
-            // Build a regex for exact replacement highlight
             const regex = new RegExp(escapedOriginal, 'g');
             outputHtml = outputHtml.replace(regex, `<mark class="restored">${escapedOriginal}</mark>`);
           });
@@ -1265,7 +1326,7 @@ Student record ID __STUDENT_ID_1__ updated.`;
     });
 
     btnModalRaw.addEventListener('click', () => {
-      const confirmWarning = confirm("WARNING: Sending unmasked names violates student privacy policies. Do you wish to override security constraints?");
+      const confirmWarning = confirm("WARNING: Sending unmasked PII violates organization privacy policies. Do you wish to override security constraints?");
       if (confirmWarning) {
         executeCloudCall(currentText, {}, false, true);
       }
@@ -1277,7 +1338,7 @@ Student record ID __STUDENT_ID_1__ updated.`;
       
       const termToTokenMap = {};
       const tokenToTermMap = {};
-      let studentCounter = 0;
+      let personCounter = 0;
       let idCounter = 0;
       let emailCounter = 0;
       let phoneCounter = 0;
@@ -1293,13 +1354,13 @@ Student record ID __STUDENT_ID_1__ updated.`;
         } else if (action === 'pseudonymize') {
           if (!termToTokenMap[termKey]) {
             if (prediction.type === 'ROSTER_NAME' || prediction.type === 'NLP_NAME') {
-              const letter = String.fromCharCode(65 + (studentCounter % 26));
-              const token = `__STUDENT_${letter}__`;
+              const letter = String.fromCharCode(65 + (personCounter % 26));
+              const token = `__PERSON_${letter}__`;
               termToTokenMap[termKey] = token;
               tokenToTermMap[token] = term;
-              studentCounter++;
-            } else if (prediction.type === 'STUDENT_ID') {
-              const token = `__STUDENT_ID_${++idCounter}__`;
+              personCounter++;
+            } else if (prediction.type === 'IDENTIFIER') {
+              const token = `__ID_${++idCounter}__`;
               termToTokenMap[termKey] = token;
               tokenToTermMap[token] = term;
             } else if (prediction.type === 'EMAIL') {
@@ -1354,11 +1415,11 @@ Student record ID __STUDENT_ID_1__ updated.`;
         const parsedNames = parseRosterFile(text, file.name);
         
         if (parsedNames.length === 0) {
-          alert("No student names could be extracted from this file. Please verify the file format.");
+          alert("No roster names could be extracted from this file. Please verify the file format.");
           return;
         }
         
-        const confirmReplace = confirm(`Extracted ${parsedNames.length} student names.\n\nWould you like to REPLACE the current roster with these names?\n(Click 'Cancel' to APPEND these names instead)`);
+        const confirmReplace = confirm(`Extracted ${parsedNames.length} names.\n\nWould you like to REPLACE the current roster with these names?\n(Click 'Cancel' to APPEND these names instead)`);
         
         if (confirmReplace) {
           classRoster = parsedNames;
@@ -1367,11 +1428,11 @@ Student record ID __STUDENT_ID_1__ updated.`;
         }
         
         runLocalPrediction();
-        alert(`Successfully imported ${parsedNames.length} names to the active class roster!`);
+        alert(`Successfully imported ${parsedNames.length} names to the active roster!`);
       };
       
       reader.readAsText(file);
-      e.target.value = ''; // Reset input to allow uploading the same file again
+      e.target.value = ''; // Reset input
     }
 
     function parseRosterFile(text, fileName) {
@@ -1382,16 +1443,16 @@ Student record ID __STUDENT_ID_1__ updated.`;
         try {
           const parsed = JSON.parse(text);
           if (Array.isArray(parsed)) {
-            return parsed.map(item => typeof item === 'string' ? item.trim() : (item.name || item.studentName || '')).filter(Boolean);
+            return parsed.map(item => typeof item === 'string' ? item.trim() : (item.name || item.studentName || item.employeeName || item.customerName || '')).filter(Boolean);
           }
         } catch (e) {
-          alert("Invalid JSON file structure. Expected a JSON array of student names.");
+          alert("Invalid JSON file structure. Expected a JSON array of names.");
         }
       } else if (fileName.endsWith('.csv')) {
         let hasHeader = false;
         if (lines.length > 0) {
           const firstLineLower = lines[0].toLowerCase();
-          if (firstLineLower.includes('name') || firstLineLower.includes('student') || firstLineLower.includes('id')) {
+          if (firstLineLower.includes('name') || firstLineLower.includes('student') || firstLineLower.includes('id') || firstLineLower.includes('employee')) {
             hasHeader = true;
           }
         }

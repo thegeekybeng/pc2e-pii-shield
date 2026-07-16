@@ -16,8 +16,8 @@ function injectScript(file) {
 
 // 2. Read roster from chrome.storage and postMessage to page context
 function syncRosterToPage() {
-  chrome.storage.local.get(["classRoster"], (result) => {
-    const roster = result.classRoster || [];
+  chrome.storage.local.get(["piiRoster"], (result) => {
+    const roster = result.piiRoster || [];
     window.postMessage({
       type: "PII_SHIELD_ROSTER_UPDATE",
       roster: roster
@@ -27,7 +27,7 @@ function syncRosterToPage() {
 
 // Listen for storage changes to sync updates in real-time
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === 'local' && changes.classRoster) {
+  if (namespace === 'local' && changes.piiRoster) {
     syncRosterToPage();
   }
 });

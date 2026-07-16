@@ -1,9 +1,9 @@
 /**
- * PII Shield - A PC2E-Aligned Privacy Layer for School Course Planning AI
+ * PII Shield - A PC2E-Aligned Domain-Agnostic Privacy Layer
  * 
  * Provides:
- * - Predict: Identifies potential student PII (Roster names, email, phone, student IDs, name heuristics)
- * - Pseudonymize: Replaces detected PII with anonymous tokens (e.g. __STUDENT_A__)
+ * - Predict: Identifies potential PII (Roster names, email, phone, identifiers/IDs, name heuristics)
+ * - Pseudonymize: Replaces detected PII with anonymous tokens (e.g. __PERSON_A__)
  * - De-pseudonymize: Restores original PII into the LLM output
  */
 
@@ -20,12 +20,11 @@ const COMMON_NAMES = new Set([
 /**
  * Predict potential PII in the given text
  * @param {string} text 
- * @param {Array<string>} roster list of student names
+ * @param {Array<string>} roster list of names
  * @returns {Array<Object>} list of identified PII spans
  */
 export function predictPII(text, roster = []) {
   const matches = [];
-  const lowercaseText = text.toLowerCase();
   
   // Normalize roster names for case-insensitive search and deduplicate
   const seenRoster = new Set();
@@ -55,22 +54,23 @@ export function predictPII(text, roster = []) {
         index: match.index,
         length: match[0].length,
         type: 'ROSTER_NAME',
-        reason: `Matches student name "${original}" from the active class roster.`
+        reason: `Matches name "${original}" from the active roster.`
       });
     }
   });
 
-  // 2. Student ID Regex
-  // Example formats: STU-12345, S1234567A, etc.
-  const studentIdRegex = /\b(STU-\d{5}|[sS]\d{7}[a-zA-Z])\b/g;
+  // 2. Identifier/ID Regex
+  // Matches typical registration/student/employee/account/order IDs (e.g. STU-12345, EMP-99281, ACC-48291, ORD-00291)
+  // Also supports Singapore NRIC/FIN formats
+  const idRegex = /\b((?:STU|EMP|ACC|ORD)-\d{5}|[sS]\d{7}[a-zA-Z])\b/gi;
   let idMatch;
-  while ((idMatch = studentIdRegex.exec(text)) !== null) {
+  while ((idMatch = idRegex.exec(text)) !== null) {
     matches.push({
       term: idMatch[0],
       index: idMatch.index,
       length: idMatch[0].length,
-      type: 'STUDENT_ID',
-      reason: `Matches typical student registration ID format.`
+      type: 'IDENTIFIER',
+      reason: `Matches typical registration ID/Identifier format.`
     });
   }
 
@@ -83,7 +83,7 @@ export function predictPII(text, roster = []) {
       index: emailMatch.index,
       length: emailMatch[0].length,
       type: 'EMAIL',
-      reason: `Contains email address pattern (violates student communication policy).`
+      reason: `Contains email address pattern.`
     });
   }
 
@@ -107,7 +107,7 @@ export function predictPII(text, roster = []) {
   uniqueWords.forEach(word => {
     const wordLower = word.toLowerCase();
     
-    // Check if the capitalized word is a common name AND not already matches by roster
+    // Check if the capitalized word is a common name AND not already matched by roster
     if (COMMON_NAMES.has(wordLower)) {
       const escaped = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
       const regex = new RegExp(`\\b${escaped}\\b`, 'g');
@@ -156,10 +156,10 @@ export function pseudonymize(text, approvedMatches) {
   // Sort approvedMatches descending to replace from end of string to start (prevents indices shifting)
   const sorted = [...approvedMatches].sort((a, b) => b.index - a.index);
   
-  // Create a map to track unique terms to same token (e.g. all "Tommy" -> "__STUDENT_A__")
+  // Create a map to track unique terms to same token (e.g. all "Tommy" -> "__PERSON_A__")
   const termToTokenMap = {};
   const tokenToTermMap = {};
-  let studentCounter = 0;
+  let personCounter = 0;
   let idCounter = 0;
   let emailCounter = 0;
   let phoneCounter = 0;
@@ -171,14 +171,14 @@ export function pseudonymize(text, approvedMatches) {
     
     if (!termToTokenMap[termKey]) {
       if (m.type === 'ROSTER_NAME' || m.type === 'NLP_NAME') {
-        const letter = String.fromCharCode(65 + (studentCounter % 26)); // A, B, C...
-        const prefix = studentCounter >= 26 ? Math.floor(studentCounter / 26) + 1 : '';
-        const token = `__STUDENT_${letter}${prefix}__`;
+        const letter = String.fromCharCode(65 + (personCounter % 26)); // A, B, C...
+        const prefix = personCounter >= 26 ? Math.floor(personCounter / 26) + 1 : '';
+        const token = `__PERSON_${letter}${prefix}__`;
         termToTokenMap[termKey] = token;
         tokenToTermMap[token] = term;
-        studentCounter++;
-      } else if (m.type === 'STUDENT_ID') {
-        const token = `__STUDENT_ID_${++idCounter}__`;
+        personCounter++;
+      } else if (m.type === 'IDENTIFIER') {
+        const token = `__ID_${++idCounter}__`;
         termToTokenMap[termKey] = token;
         tokenToTermMap[token] = term;
       } else if (m.type === 'EMAIL') {
@@ -219,7 +219,7 @@ export function pseudonymize(text, approvedMatches) {
 export function depseudonymize(responseText, tokenMap) {
   let output = responseText;
   
-  // Sort keys (tokens) by length descending to prevent substring issues (e.g. STUDENT_AA vs STUDENT_A)
+  // Sort keys (tokens) by length descending to prevent substring issues (e.g. PERSON_AA vs PERSON_A)
   const tokens = Object.keys(tokenMap).sort((a, b) => b.length - a.length);
   
   tokens.forEach(token => {
@@ -227,7 +227,7 @@ export function depseudonymize(responseText, tokenMap) {
     
     // Replace all occurrences of the token
     // We also support possessive case formatting if LLM generated it like token's
-    // (e.g. __STUDENT_A__'s -> Tommy's)
+    // (e.g. __PERSON_A__'s -> Tommy's)
     const escapedToken = token.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     const regex = new RegExp(escapedToken, 'g');
     output = output.replace(regex, original);
