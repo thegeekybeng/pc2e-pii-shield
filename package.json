@@ -4,6 +4,9 @@
   "description": "Domain-agnostic PC2E-aligned client-side Personally Identifiable Information (PII) masking interceptor for cloud LLMs.",
   "type": "module",
   "main": "./piiFilter.js",
+  "files": [
+    "piiFilter.js"
+  ],
   "exports": {
     ".": "./piiFilter.js"
   },
