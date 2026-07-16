@@ -79,17 +79,31 @@ The system works as a client-side middleware/interceptor layer that wraps LLM ca
 
 ```text
 pc2e-pii-shield/
-├── README.md               ← Technical documentation and overview
-├── index.html              ← Glassmorphic dashboard demonstrating 4 domain presets
-├── piiFilter.js            ← Core ES module containing prediction & masking logic
-├── entityRoster.json       ← Sample list of personnel names loaded dynamically
-├── verify_pii.js           ← Automated Node.js verification test suite
-└── extension/              ← Chrome browser extension directory
-    ├── manifest.json       ← Manifest V3 setup (zero-code injection)
-    ├── contentScript.js    ← Isolated content script managing roster storage
-    ├── inject.js           ← Injected context script hooking window.fetch
-    ├── popup.html          ← Pop-up interface for active roster uploads
-    └── popup.js            ← Pop-up controller managing roster synchronization
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md          ← Bug reporting issue template
+│   │   └── feature_request.md     ← Feature request suggestion template
+│   ├── workflows/
+│   │   ├── test.yml               ← Node.js CI test suite action matrix
+│   │   └── publish.yml            ← npm package publication action (releases)
+│   └── pull_request_template.md    ← PR criteria Checklist
+├── extension/                     ← Chrome browser extension context
+│   ├── manifest.json              ← Manifest V3 setup (zero-code interceptor)
+│   ├── contentScript.js           ← Isolated script managing local storage
+│   ├── inject.js                  ← Page script overriding fetch calls
+│   ├── popup.html                 ← Active roster upload interface
+│   └── popup.js                   ← Active roster sync script
+├── README.md                      ← Documentation and specifications
+├── LICENSE                        ← Standard MIT License terms
+├── SECURITY.md                    ← Security disclosure guidelines
+├── CODE_OF_CONDUCT.md             ← Contributor behavior guidelines
+├── CONTRIBUTING.md                ← Development & review guidelines
+├── package.json                   ← Project configuration & files filter
+├── package-lock.json              ← Lockfile dependency tree
+├── index.html                     ← Glassmorphic preset sandbox dashboard
+├── piiFilter.js                   ← Core ES module masking library
+├── entityRoster.json              ← Default generic roster sample database
+└── verify_pii.js                  ← Local test assertions suite
 ```
 
 ---
@@ -181,15 +195,19 @@ PII Shield is engineered to satisfy security frameworks for LLM Applications 202
 
 ---
 
-## 🧪 Automated Testing
+## 🧪 Automated Testing & CI
 
-To verify the PII regex, roster matchers, and bi-directional pseudonymization loops:
+Local tests verify regex execution speed, boundary case detection, and bi-directional token mapping accuracy.
 
-```bash
-node verify_pii.js
-```
+* **To Run Tests Locally:**
 
-All assertions should pass successfully.
+  ```bash
+  npm test
+  # or node verify_pii.js
+  ```
+
+* **Continuous Integration (CI):**
+  GitHub Actions automatically triggers a node matrix build (`.github/workflows/test.yml`) executing the test suite against **Node.js versions 18.x, 20.x, and 22.x** on every pull request and push to the `main` branch. This guarantees that contributions preserve all PII masking assertions before code is merged.
 
 ---
 
