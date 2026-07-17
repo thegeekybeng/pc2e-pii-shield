@@ -28,5 +28,12 @@
     "data-governance"
   ],
   "author": "Andrew Yeo <andrew.yeo.mc@gmail.com> (https://github.com/thegeekybeng)",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thegeekybeng/pc2e-pii-shield.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }
