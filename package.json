@@ -1,6 +1,6 @@
 {
   "name": "@thegeekybeng/pii-shield",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Domain-agnostic PC2E-aligned client-side Personally Identifiable Information (PII) masking interceptor for cloud LLMs.",
   "type": "module",
   "main": "./piiFilter.js",
@@ -32,8 +32,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thegeekybeng/pc2e-pii-shield.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }
